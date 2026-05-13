@@ -1,0 +1,128 @@
+﻿@{
+    ViewData["Title"] = "GLMS Home";
+}
+
+<div class="container mt-5">
+
+    <div class="text-center mb-5">
+
+        <h1 class="display-4 fw-bold">
+            Global Logistics Management System
+        </h1>
+
+        <p class="lead">
+            Enterprise logistics platform for managing clients, contracts,
+            service requests, and international financial operations.
+        </p>
+
+    </div>
+
+    <div class="row text-center">
+
+        <div class="col-md-4 mb-4">
+
+            <div class="card shadow-sm h-100">
+
+                <div class="card-body">
+
+                    <h3 class="card-title">
+                        Clients
+                    </h3>
+
+                    <p class="card-text">
+                        Manage logistics clients, regional information,
+                        and contact details.
+                    </p>
+
+                    <a asp-controller="Clients"
+                       asp-action="Index"
+                       class="btn btn-primary">
+
+                        View Clients
+
+                    </a>
+
+                </div>
+
+            </div>
+
+        </div>
+
+        <div class="col-md-4 mb-4">
+
+            <div class="card shadow-sm h-100">
+
+                <div class="card-body">
+
+                    <h3 class="card-title">
+                        Contracts
+                    </h3>
+
+                    <p class="card-text">
+                        Track active, expired, draft, and on-hold contracts
+                        with PDF agreement support.
+                    </p>
+
+                    <a asp-controller="Contracts"
+                       asp-action="Index"
+                       class="btn btn-success">
+
+                        View Contracts
+
+                    </a>
+
+                </div>
+
+            </div>
+
+        </div>
+
+        <div class="col-md-4 mb-4">
+
+            <div class="card shadow-sm h-100">
+
+                <div class="card-body">
+
+                    <h3 class="card-title">
+                        Service Requests
+                    </h3>
+
+                    <p class="card-text">
+                        Create and manage logistics service requests with
+                        workflow validation and currency conversion.
+                    </p>
+
+                    <a asp-controller="ServiceRequests"
+                       asp-action="Index"
+                       class="btn btn-warning text-dark">
+
+                        View Requests
+
+                    </a>
+
+                </div>
+
+            </div>
+
+        </div>
+
+    </div>
+
+    <div class="mt-5 p-4 bg-light rounded shadow-sm">
+
+        <h4>
+            System Features
+        </h4>
+
+        <ul>
+            <li>Enterprise-grade ASP.NET Core MVC architecture</li>
+            <li>Entity Framework Core with SQL Server</li>
+            <li>Workflow validation for contracts and service requests</li>
+            <li>PDF agreement upload functionality</li>
+            <li>Currency conversion integration</li>
+            <li>Scalable enterprise design patterns</li>
+        </ul>
+
+    </div>
+
+</div>

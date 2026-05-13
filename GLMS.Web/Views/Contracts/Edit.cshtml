@@ -1,0 +1,113 @@
+@model GLMS.Web.Models.Contract
+@using GLMS.Web.Models
+
+@{
+    ViewData["Title"] = "Edit Contract";
+}
+
+<h1>Edit Contract</h1>
+
+<h4>Contract</h4>
+<hr />
+
+<div class="row">
+    <div class="col-md-4">
+
+        <form asp-action="Edit" enctype="multipart/form-data">
+
+            <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+
+            <input type="hidden" asp-for="Id" />
+
+            <div class="form-group mb-3">
+                <label asp-for="ClientId" class="control-label"></label>
+
+                <select asp-for="ClientId"
+                        class="form-control"
+                        asp-items="ViewBag.ClientId">
+
+                    <option value="">-- Select Client --</option>
+
+                </select>
+
+                <span asp-validation-for="ClientId" class="text-danger"></span>
+            </div>
+
+            <div class="form-group mb-3">
+                <label asp-for="StartDate" class="control-label"></label>
+
+                <input asp-for="StartDate" class="form-control" type="date" />
+
+                <span asp-validation-for="StartDate" class="text-danger"></span>
+            </div>
+
+            <div class="form-group mb-3">
+                <label asp-for="EndDate" class="control-label"></label>
+
+                <input asp-for="EndDate" class="form-control" type="date" />
+
+                <span asp-validation-for="EndDate" class="text-danger"></span>
+            </div>
+
+            <div class="form-group mb-3">
+                <label asp-for="Status" class="control-label"></label>
+
+                <select asp-for="Status"
+                        class="form-control"
+                        asp-items="Html.GetEnumSelectList<ContractStatus>()">
+
+                    <option value="">-- Select Status --</option>
+
+                </select>
+
+                <span asp-validation-for="Status" class="text-danger"></span>
+            </div>
+
+            <div class="form-group mb-3">
+                <label asp-for="ServiceLevel" class="control-label"></label>
+
+                <input asp-for="ServiceLevel" class="form-control" />
+
+                <span asp-validation-for="ServiceLevel" class="text-danger"></span>
+            </div>
+
+            <div class="form-group mb-3">
+                <label class="control-label">Replace Signed Agreement PDF</label>
+
+                <input type="file"
+                       name="agreementFile"
+                       class="form-control"
+                       accept=".pdf" />
+
+                <span asp-validation-for="AgreementFilePath" class="text-danger"></span>
+            </div>
+
+            @if (!string.IsNullOrEmpty(Model.AgreementFilePath))
+            {
+                <div class="mb-3">
+                    <strong>Current File:</strong>
+
+                    <a href="@Model.AgreementFilePath" target="_blank">
+                        View Current Agreement
+                    </a>
+                </div>
+            }
+
+            <div class="form-group">
+                <input type="submit" value="Save" class="btn btn-primary" />
+
+                <a asp-action="Index" class="btn btn-secondary">
+                    Back to List
+                </a>
+            </div>
+
+        </form>
+
+    </div>
+</div>
+
+@section Scripts {
+    @{
+        await Html.RenderPartialAsync("_ValidationScriptsPartial");
+    }
+}
