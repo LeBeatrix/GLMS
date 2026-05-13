@@ -9,6 +9,8 @@ builder.Services.AddDbContext<ApplicationDbContext>(options =>
 
 builder.Services.AddScoped<ServiceRequestValidator>();
 
+builder.Services.AddHttpClient<CurrencyService>();
+
 // Add services to the container.
 builder.Services.AddControllersWithViews();
 

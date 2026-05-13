@@ -13,7 +13,7 @@
     <div class="col-md-5">
         <form asp-action="Create" method="post">
 
-            <div asp-validation-summary="ModelOnly" class="alert alert-danger"></div>
+            <div asp-validation-summary="ModelOnly" class="text-danger mb-3"></div>
 
             <div class="form-group mb-3">
                 <label asp-for="ContractId" class="control-label">Contract</label>
@@ -37,21 +37,16 @@
                        class="form-control"
                        type="number"
                        step="0.01"
-                       min="0.01" />
+                       min="0.01"
+                       placeholder="Example: 100" />
                 <span asp-validation-for="CostUSD" class="text-danger"></span>
             </div>
 
-            <div class="form-group mb-3">
-                <label asp-for="CostZAR" class="control-label">Cost in ZAR</label>
-                <input asp-for="CostZAR"
-                       class="form-control"
-                       type="number"
-                       step="0.01"
-                       readonly />
-                <small class="form-text text-muted">
-                    This will be calculated automatically during the currency conversion phase.
-                </small>
-                <span asp-validation-for="CostZAR" class="text-danger"></span>
+            <input asp-for="CostZAR" type="hidden" value="0" />
+
+            <div class="alert alert-info">
+                The ZAR amount will be calculated automatically after you click
+                <strong>Create Service Request</strong>.
             </div>
 
             <div class="form-group mb-3">

@@ -1,7 +1,3 @@
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
@@ -15,55 +11,47 @@ namespace GLMS.Web.Controllers
     {
         private readonly ApplicationDbContext _context;
         private readonly ServiceRequestValidator _validator;
+        private readonly CurrencyService _currencyService;
 
-        public ServiceRequestsController(ApplicationDbContext context, ServiceRequestValidator validator)
+        public ServiceRequestsController(
+            ApplicationDbContext context,
+            ServiceRequestValidator validator,
+            CurrencyService currencyService)
         {
             _context = context;
             _validator = validator;
+            _currencyService = currencyService;
         }
 
-        // GET: ServiceRequests
         public async Task<IActionResult> Index()
         {
-            var applicationDbContext = _context.ServiceRequests
-                .Include(s => s.Contract);
+            var serviceRequests = _context.ServiceRequests
+                .Include(s => s.Contract)
+                .ThenInclude(c => c.Client);
 
-            return View(await applicationDbContext.ToListAsync());
+            return View(await serviceRequests.ToListAsync());
         }
 
-        // GET: ServiceRequests/Details/5
         public async Task<IActionResult> Details(int? id)
         {
-            if (id == null)
-            {
-                return NotFound();
-            }
+            if (id == null) return NotFound();
 
             var serviceRequest = await _context.ServiceRequests
                 .Include(s => s.Contract)
+                .ThenInclude(c => c.Client)
                 .FirstOrDefaultAsync(m => m.Id == id);
 
-            if (serviceRequest == null)
-            {
-                return NotFound();
-            }
+            if (serviceRequest == null) return NotFound();
 
             return View(serviceRequest);
         }
 
-        // GET: ServiceRequests/Create
         public async Task<IActionResult> Create()
         {
-            ViewData["ContractId"] = new SelectList(
-                await _context.Contracts.Include(c => c.Client).ToListAsync(),
-                "Id",
-                "DisplayName"
-            );
-
+            await PopulateContractsDropDownList();
             return View();
         }
 
-        // POST: ServiceRequests/Create
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Create([Bind("Id,ContractId,Description,CostUSD,CostZAR,Status")] ServiceRequest serviceRequest)
@@ -82,53 +70,43 @@ namespace GLMS.Web.Controllers
 
             if (ModelState.IsValid)
             {
-                _context.Add(serviceRequest);
-                await _context.SaveChangesAsync();
-                return RedirectToAction(nameof(Index));
+                try
+                {
+                    decimal exchangeRate = await _currencyService.GetUsdToZarRateAsync();
+                    serviceRequest.CostZAR = Math.Round(serviceRequest.CostUSD * exchangeRate, 2);
+
+                    _context.Add(serviceRequest);
+                    await _context.SaveChangesAsync();
+
+                    return RedirectToAction(nameof(Index));
+                }
+                catch
+                {
+                    ModelState.AddModelError("", "Currency API is currently unavailable. Please try again later.");
+                }
             }
 
-            ViewData["ContractId"] = new SelectList(
-                await _context.Contracts.Include(c => c.Client).ToListAsync(),
-                "Id",
-                "DisplayName"
-            );
-
+            await PopulateContractsDropDownList(serviceRequest.ContractId);
             return View(serviceRequest);
         }
 
-        // GET: ServiceRequests/Edit/5
         public async Task<IActionResult> Edit(int? id)
         {
-            if (id == null)
-            {
-                return NotFound();
-            }
+            if (id == null) return NotFound();
 
             var serviceRequest = await _context.ServiceRequests.FindAsync(id);
 
-            if (serviceRequest == null)
-            {
-                return NotFound();
-            }
+            if (serviceRequest == null) return NotFound();
 
-            ViewData["ContractId"] = new SelectList(
-                await _context.Contracts.Include(c => c.Client).ToListAsync(),
-                "Id",
-                "DisplayName"
-            );
-
+            await PopulateContractsDropDownList(serviceRequest.ContractId);
             return View(serviceRequest);
         }
 
-        // POST: ServiceRequests/Edit/5
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Edit(int id, [Bind("Id,ContractId,Description,CostUSD,CostZAR,Status")] ServiceRequest serviceRequest)
         {
-            if (id != serviceRequest.Id)
-            {
-                return NotFound();
-            }
+            if (id != serviceRequest.Id) return NotFound();
 
             var contract = await _context.Contracts
                 .FirstOrDefaultAsync(c => c.Id == serviceRequest.ContractId);
@@ -146,52 +124,43 @@ namespace GLMS.Web.Controllers
             {
                 try
                 {
+                    decimal exchangeRate = await _currencyService.GetUsdToZarRateAsync();
+                    serviceRequest.CostZAR = Math.Round(serviceRequest.CostUSD * exchangeRate, 2);
+
                     _context.Update(serviceRequest);
                     await _context.SaveChangesAsync();
+
+                    return RedirectToAction(nameof(Index));
                 }
                 catch (DbUpdateConcurrencyException)
                 {
-                    if (!ServiceRequestExists(serviceRequest.Id))
-                    {
-                        return NotFound();
-                    }
-
+                    if (!ServiceRequestExists(serviceRequest.Id)) return NotFound();
                     throw;
                 }
-
-                return RedirectToAction(nameof(Index));
+                catch
+                {
+                    ModelState.AddModelError("", "Currency API is currently unavailable. Please try again later.");
+                }
             }
 
-            ViewData["ContractId"] = new SelectList(
-                await _context.Contracts.Include(c => c.Client).ToListAsync(),
-                "Id",
-                "DisplayName"
-            );
-
+            await PopulateContractsDropDownList(serviceRequest.ContractId);
             return View(serviceRequest);
         }
 
-        // GET: ServiceRequests/Delete/5
         public async Task<IActionResult> Delete(int? id)
         {
-            if (id == null)
-            {
-                return NotFound();
-            }
+            if (id == null) return NotFound();
 
             var serviceRequest = await _context.ServiceRequests
                 .Include(s => s.Contract)
+                .ThenInclude(c => c.Client)
                 .FirstOrDefaultAsync(m => m.Id == id);
 
-            if (serviceRequest == null)
-            {
-                return NotFound();
-            }
+            if (serviceRequest == null) return NotFound();
 
             return View(serviceRequest);
         }
 
-        // POST: ServiceRequests/Delete/5
         [HttpPost, ActionName("Delete")]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> DeleteConfirmed(int id)
@@ -205,6 +174,20 @@ namespace GLMS.Web.Controllers
             }
 
             return RedirectToAction(nameof(Index));
+        }
+
+        private async Task PopulateContractsDropDownList(object? selectedContract = null)
+        {
+            var contracts = await _context.Contracts
+                .Include(c => c.Client)
+                .ToListAsync();
+
+            ViewData["ContractId"] = new SelectList(
+                contracts,
+                "Id",
+                "DisplayName",
+                selectedContract
+            );
         }
 
         private bool ServiceRequestExists(int id)
