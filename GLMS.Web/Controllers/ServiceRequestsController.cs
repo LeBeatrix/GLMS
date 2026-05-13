@@ -4,6 +4,7 @@ using Microsoft.EntityFrameworkCore;
 using GLMS.Web.Data;
 using GLMS.Web.Models;
 using GLMS.Web.Services;
+using GLMS.Web.Interfaces;
 
 namespace GLMS.Web.Controllers
 {
@@ -11,16 +12,16 @@ namespace GLMS.Web.Controllers
     {
         private readonly ApplicationDbContext _context;
         private readonly ServiceRequestValidator _validator;
-        private readonly CurrencyService _currencyService;
+        private readonly ICurrencyConverter _currencyConverter;
 
         public ServiceRequestsController(
             ApplicationDbContext context,
             ServiceRequestValidator validator,
-            CurrencyService currencyService)
+            ICurrencyConverter currencyConverter)
         {
             _context = context;
             _validator = validator;
-            _currencyService = currencyService;
+            _currencyConverter = currencyConverter;
         }
 
         public async Task<IActionResult> Index()
@@ -71,9 +72,8 @@ namespace GLMS.Web.Controllers
             if (ModelState.IsValid)
             {
                 try
-                {
-                    decimal exchangeRate = await _currencyService.GetUsdToZarRateAsync();
-                    serviceRequest.CostZAR = Math.Round(serviceRequest.CostUSD * exchangeRate, 2);
+                { 
+                    serviceRequest.CostZAR = await _currencyConverter.ConvertAsync(serviceRequest.CostUSD);
 
                     _context.Add(serviceRequest);
                     await _context.SaveChangesAsync();
@@ -124,8 +124,8 @@ namespace GLMS.Web.Controllers
             {
                 try
                 {
-                    decimal exchangeRate = await _currencyService.GetUsdToZarRateAsync();
-                    serviceRequest.CostZAR = Math.Round(serviceRequest.CostUSD * exchangeRate, 2);
+
+                    serviceRequest.CostZAR = await _currencyConverter.ConvertAsync(serviceRequest.CostUSD);
 
                     _context.Update(serviceRequest);
                     await _context.SaveChangesAsync();

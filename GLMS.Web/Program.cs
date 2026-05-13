@@ -1,6 +1,7 @@
 using GLMS.Web.Data;
 using Microsoft.EntityFrameworkCore;
 using GLMS.Web.Services;
+using GLMS.Web.Interfaces;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -8,8 +9,8 @@ builder.Services.AddDbContext<ApplicationDbContext>(options =>
     options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
 
 builder.Services.AddScoped<ServiceRequestValidator>();
-
 builder.Services.AddHttpClient<CurrencyService>();
+builder.Services.AddScoped<ICurrencyConverter, UsdToZarConverter>();
 
 // Add services to the container.
 builder.Services.AddControllersWithViews();

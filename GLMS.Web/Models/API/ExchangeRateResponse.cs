@@ -1,10 +1,13 @@
+using System.Text.Json.Serialization;
+
 namespace GLMS.Web.Models.API
 {
-	public class ExchangeRateResponse
-	{
-		public string Result { get; set; } = string.Empty;
+    public class ExchangeRateResponse
+    {
+        [JsonPropertyName("result")]
+        public string Result { get; set; } = string.Empty;
 
-		public Dictionary<string, decimal> Rates { get; set; }
-			= new Dictionary<string, decimal>();
-	}
+        [JsonPropertyName("rates")]
+        public Dictionary<string, decimal> Rates { get; set; } = new();
+    }
 }
