@@ -7,16 +7,19 @@ using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 using GLMS.Web.Data;
 using GLMS.Web.Models;
+using Microsoft.AspNetCore.Hosting;
 
 namespace GLMS.Web.Controllers
 {
     public class ContractsController : Controller
     {
         private readonly ApplicationDbContext _context;
+        private readonly IWebHostEnvironment _environment;
 
-        public ContractsController(ApplicationDbContext context)
+        public ContractsController(ApplicationDbContext context, IWebHostEnvironment environment)
         {
             _context = context;
+            _environment = environment;
         }
 
         // GET: Contracts
@@ -54,18 +57,54 @@ namespace GLMS.Web.Controllers
 
         // POST: Contracts/Create
         // To protect from overposting attacks, enable the specific properties you want to bind to.
-        // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create([Bind("Id,ClientId,StartDate,EndDate,Status,ServiceLevel,AgreementFilePath")] Contract contract)
+        public async Task<IActionResult> Create([Bind("Id,ClientId,StartDate,EndDate,Status,ServiceLevel")] Contract contract, IFormFile? agreementFile)
         {
+            // PDF Validation
+            if (agreementFile != null)
+            {
+                var extension = Path.GetExtension(agreementFile.FileName).ToLower();
+
+                if (extension != ".pdf")
+                {
+                    ModelState.AddModelError("", "Only PDF files are allowed.");
+                }
+            }
+
             if (ModelState.IsValid)
             {
+                //Save PDF
+                if (agreementFile != null)
+                {
+                    string uploadsFolder = Path.Combine(
+                        _environment.WebRootPath,
+                        "uploads",
+                        "contracts"
+                    );
+
+                    string uniqueFileName =
+                        Guid.NewGuid().ToString() + ".pdf";
+
+                    string filePath =
+                        Path.Combine(uploadsFolder, uniqueFileName);
+
+                    using (var fileStream = new FileStream(filePath, FileMode.Create))
+                    {
+                        await agreementFile.CopyToAsync(fileStream);
+                    }
+
+                    contract.AgreementFilePath =
+                "/uploads/contracts/" + uniqueFileName;
+                }
+
                 _context.Add(contract);
                 await _context.SaveChangesAsync();
+
                 return RedirectToAction(nameof(Index));
             }
             ViewData["ClientId"] = new SelectList(_context.Clients, "Id", "Name", contract.ClientId);
+
             return View(contract);
         }
 
@@ -88,21 +127,57 @@ namespace GLMS.Web.Controllers
 
         // POST: Contracts/Edit/5
         // To protect from overposting attacks, enable the specific properties you want to bind to.
-        // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Edit(int id, [Bind("Id,ClientId,StartDate,EndDate,Status,ServiceLevel,AgreementFilePath")] Contract contract)
+        public async Task<IActionResult> Edit(int id, [Bind("Id,ClientId,StartDate,EndDate,Status,ServiceLevel,AgreementFilePath")] Contract contract,
+        IFormFile? agreementFile)
         {
             if (id != contract.Id)
             {
                 return NotFound();
             }
 
-            if (ModelState.IsValid)
+            // PDF Validation
+            if (agreementFile != null)
             {
-                try
+                var extension = Path.GetExtension(agreementFile.FileName).ToLower();
+
+                if (extension != ".pdf")
                 {
+                    ModelState.AddModelError("", "Only PDF files are allowed.");
+                }
+            }
+
+            if (ModelState.IsValid)
+            { 
+                try
+                { 
+                // Upload new file
+                if (agreementFile != null)
+                {
+                    string uploadsFolder = Path.Combine(
+                        _environment.WebRootPath,
+                        "uploads",
+                        "contracts"
+                    );
+
+                        string uniqueFileName =
+                        Guid.NewGuid().ToString() + ".pdf";
+
+                        string filePath =
+                            Path.Combine(uploadsFolder, uniqueFileName);
+
+                        using (var fileStream = new FileStream(filePath, FileMode.Create))
+                        {
+                            await agreementFile.CopyToAsync(fileStream);
+                        }
+
+                        contract.AgreementFilePath =
+                    "/uploads/contracts/" + uniqueFileName;
+                    }
+
                     _context.Update(contract);
+
                     await _context.SaveChangesAsync();
                 }
                 catch (DbUpdateConcurrencyException)
@@ -119,6 +194,7 @@ namespace GLMS.Web.Controllers
                 return RedirectToAction(nameof(Index));
             }
             ViewData["ClientId"] = new SelectList(_context.Clients, "Id", "Name", contract.ClientId);
+
             return View(contract);
         }
 
