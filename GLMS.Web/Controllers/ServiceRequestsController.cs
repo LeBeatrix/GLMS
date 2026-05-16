@@ -5,6 +5,8 @@ using GLMS.Web.Data;
 using GLMS.Web.Models;
 using GLMS.Web.Services;
 using GLMS.Web.Interfaces;
+using GLMS.Web.Observers;
+using GLMS.Web.Factories;
 
 namespace GLMS.Web.Controllers
 {
@@ -13,15 +15,19 @@ namespace GLMS.Web.Controllers
         private readonly ApplicationDbContext _context;
         private readonly ServiceRequestValidator _validator;
         private readonly ICurrencyConverter _currencyConverter;
+        private readonly IServiceRequestObserver _observer;
+        private readonly IServiceRequestFactory _factory;
 
         public ServiceRequestsController(
             ApplicationDbContext context,
             ServiceRequestValidator validator,
-            ICurrencyConverter currencyConverter)
+            ICurrencyConverter currencyConverter, IServiceRequestObserver observer,  IServiceRequestFactory factory)
         {
             _context = context;
             _validator = validator;
             _currencyConverter = currencyConverter;
+            _observer = observer;
+            _factory = factory;
         }
 
         public async Task<IActionResult> Index()
@@ -60,6 +66,13 @@ namespace GLMS.Web.Controllers
             var contract = await _context.Contracts
                 .FirstOrDefaultAsync(c => c.Id == serviceRequest.ContractId);
 
+            var newRequest = _factory.Create(
+                serviceRequest.ContractId,
+                serviceRequest.Description,
+                serviceRequest.CostUSD,
+                serviceRequest.Status
+            );
+
             if (contract == null)
             {
                 ModelState.AddModelError("", "Selected contract could not be found.");
@@ -73,9 +86,9 @@ namespace GLMS.Web.Controllers
             {
                 try
                 { 
-                    serviceRequest.CostZAR = await _currencyConverter.ConvertAsync(serviceRequest.CostUSD);
+                    newRequest.CostZAR = await _currencyConverter.ConvertAsync(newRequest.CostUSD);
 
-                    _context.Add(serviceRequest);
+                    _context.Add(newRequest);
                     await _context.SaveChangesAsync();
 
                     return RedirectToAction(nameof(Index));
@@ -129,6 +142,8 @@ namespace GLMS.Web.Controllers
 
                     _context.Update(serviceRequest);
                     await _context.SaveChangesAsync();
+
+                    _observer.Update(serviceRequest);
 
                     return RedirectToAction(nameof(Index));
                 }
