@@ -1,0 +1,17 @@
+﻿namespace GLMS.Web.Services
+{
+    public class FileValidator
+    {
+        public bool IsPdfFile(string fileName)
+        {
+            if (string.IsNullOrWhiteSpace(fileName))
+            {
+                return false;
+            }
+
+            var extension = Path.GetExtension(fileName).ToLower();
+
+            return extension == ".pdf";
+        }
+    }
+}
