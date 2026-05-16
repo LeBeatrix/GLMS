@@ -1,27 +1,92 @@
 # Global Logistics Management System (GLMS)
 
-Enterprise Application Development POE Part 2
+# 
 
-## Student
-Lené Prinsloo  
-ST10496124
+###### Enterprise Application Development POE Part 2  
 
-## Project Overview
-The Global Logistics Management System is an ASP.NET Core MVC enterprise prototype for TechMove Logistics. The system manages clients, contracts, service requests, PDF agreement uploads, workflow validation, and currency conversion.
+###### Student: Lené Prinsloo  
 
-## Technologies
-- ASP.NET Core MVC
-- Entity Framework Core
-- SQL Server LocalDB
-- Bootstrap
-- xUnit Testing
-- GitHub Actions
+###### Student Number: ST1049612
 
-## Main Features
-- Client Management
-- Contract Management
-- Service Request Management
-- Contract Status Workflow Validation
-- PDF Agreement Uploads
-- USD to ZAR Currency Conversion
-- Unit Testing
+###### Youtube link: 
+
+# 
+
+### Project Overview
+
+GLMS is an ASP.NET Core MVC enterprise prototype for TechMove Logistics. The system manages clients, contracts, service requests, PDF signed agreements, workflow validation, currency conversion, and unit testing.
+
+# 
+
+### Technologies
+
+* ASP.NET Core MVC
+* Entity Framework Core
+* SQL Server LocalDB
+* Bootstrap
+* xUnit
+* GitHub Actions
+
+# 
+
+### Features
+
+* Client CRUD management
+* Contract CRUD management
+* Service Request CRUD management
+* PDF agreement upload for contracts
+* Contract workflow validation
+* Blocks service requests for Draft, Expired, and On Hold contracts
+* USD to ZAR currency conversion using an external API
+* Unit tests for currency calculation, file validation, and workflow validation
+* GitHub Actions pipeline for build and test automation
+
+# 
+
+### Design Patterns Implemented
+
+\- MVC Pattern
+
+\- Strategy Pattern for currency conversion
+
+\- Observer Pattern for service request status updates
+
+\- Factory Pattern for service request creation
+
+\- Dependency Injection
+
+# 
+
+### How to Run
+
+1. Open the solution in Visual Studio.
+2. Update the database:
+
+```bash
+
+&#x20;  dotnet ef database update --project GLMS.Web
+
+```
+
+3\. Run the application:
+
+```bash
+
+dotnet run --project GLMS.Web
+
+```
+
+
+
+### How to Run Tests
+
+```bash
+
+dotnet test GLMS.slnx
+
+```
+
+
+
+
+
