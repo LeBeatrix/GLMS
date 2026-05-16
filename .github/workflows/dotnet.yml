@@ -10,10 +10,6 @@ jobs:
   build-and-test:
     runs-on: windows-latest
 
-    defaults:
-      run:
-        working-directory: GLMS.Web
-
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
@@ -21,13 +17,13 @@ jobs:
       - name: Setup .NET
         uses: actions/setup-dotnet@v4
         with:
-          dotnet-version: '8.0.x'
+          dotnet-version: '10.0.x'
 
       - name: Restore dependencies
-        run: dotnet restore
+        run: dotnet restore GLMS.slnx
 
-      - name: Build project
-        run: dotnet build --no-restore --configuration Release
+      - name: Build solution
+        run: dotnet build GLMS.slnx --no-restore --configuration Release
 
       - name: Run tests
-        run: dotnet test --no-build --configuration Release
+        run: dotnet test GLMS.slnx --no-build --configuration Release
