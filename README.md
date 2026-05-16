@@ -1,6 +1,5 @@
 # Global Logistics Management System (GLMS)
 
-# 
 
 ###### Enterprise Application Development POE Part 2  
 
@@ -64,7 +63,7 @@ GLMS is an ASP.NET Core MVC enterprise prototype for TechMove Logistics. The sys
 
 ```bash
 
-&#x20;  dotnet ef database update --project GLMS.Web
+dotnet ef database update --project GLMS.Web
 
 ```
 
