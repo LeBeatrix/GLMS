@@ -71,6 +71,11 @@ namespace GLMS.Web.Controllers
                     ModelState.AddModelError("", "Only PDF files are allowed.");
                 }
             }
+            // Date Validation
+            if (contract.EndDate <= contract.StartDate)
+            {
+                ModelState.AddModelError("EndDate", "End date must be after the start date.");
+            }
 
             if (ModelState.IsValid)
             {
@@ -148,6 +153,11 @@ namespace GLMS.Web.Controllers
                 }
             }
 
+            // Date Validation
+            if (contract.EndDate <= contract.StartDate)
+            {
+                ModelState.AddModelError("EndDate", "End date must be after the start date.");
+            }
             if (ModelState.IsValid)
             { 
                 try

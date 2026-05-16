@@ -82,6 +82,13 @@ namespace GLMS.Web.Controllers
                 ModelState.AddModelError("", _validator.GetValidationMessage(contract));
             }
 
+            // Validate status
+            var validStatuses = new[] { "Pending", "Approved", "Rejected", "Completed" };
+
+            if (!validStatuses.Contains(serviceRequest.Status))
+            {
+                ModelState.AddModelError("Status", "Invalid service request status.");
+            }
             if (ModelState.IsValid)
             {
                 try
@@ -133,6 +140,13 @@ namespace GLMS.Web.Controllers
                 ModelState.AddModelError("", _validator.GetValidationMessage(contract));
             }
 
+            // Validate status
+            var validStatuses = new[] { "Pending", "Approved", "Rejected", "Completed" };
+
+            if (!validStatuses.Contains(serviceRequest.Status))
+            {
+                ModelState.AddModelError("Status", "Invalid service request status.");
+            }
             if (ModelState.IsValid)
             {
                 try
