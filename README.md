@@ -137,7 +137,7 @@ Update-Database
 
 ## 1. Clone Repository
 
-![Home Page](screenshots/github-main.png)
+![Home Page](Screenshots/github-main.png)
 
 ```bash
 git clone https://github.com/LeBeatrix/GLMS.git
@@ -232,49 +232,49 @@ Service requests cannot be created for:
 
 ## Home Page
 
-![Home Page](screenshots/home-page.png)
+![Home Page](Screenshots/home-page.png)
 
 ---
 
 ## Clients Management
 
-![Clients](screenshots/clients-index.png)
+![Clients](Screenshots/clients-index.png)
 
 ---
 
 ## Contract Management
 
-![Contracts](screenshots/contracts-index.png)
+![Contracts](Screenshots/contracts-index.png)
 
 ---
 
 ## PDF Upload Validation
 
-![PDF Upload](screenshots/pdf-upload.png)
+![PDF Upload](Screenshots/pdf-upload.png)
 
 ---
 
 ## Currency Conversion
 
-![Currency Conversion](screenshots/currency-conversion.png)
+![Currency Conversion](Screenshots/currency-conversion.png)
 
 ---
 
 ## Workflow Validation
 
-![Workflow Validation](screenshots/workflow-validation.png)
+![Workflow Validation](Screenshots/workflow-validation.png)
 
 ---
 
 ## Unit Testing
 
-![Unit Tests](screenshots/unit-tests.png)
+![Unit Tests](Screenshots/unit-tests.png)
 
 ---
 
 ## GitHub Actions Pipeline
 
-![GitHub Actions](screenshots/github-actions.png)
+![GitHub Actions](Screenshots/github-actions.png)
 
 ---
 
