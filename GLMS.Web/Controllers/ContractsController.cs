@@ -62,7 +62,11 @@ namespace GLMS.Web.Controllers
         public async Task<IActionResult> Create([Bind("Id,ClientId,StartDate,EndDate,Status,ServiceLevel")] Contract contract, IFormFile? agreementFile)
         {
             // PDF Validation
-            if (agreementFile != null)
+            if (agreementFile == null || agreementFile.Length == 0)
+            {
+                ModelState.AddModelError("", "A signed agreement PDF must be uploaded.");
+            }
+            else
             {
                 var extension = Path.GetExtension(agreementFile.FileName).ToLower();
 
@@ -143,7 +147,12 @@ namespace GLMS.Web.Controllers
             }
 
             // PDF Validation
-            if (agreementFile != null)
+            if (string.IsNullOrEmpty(contract.AgreementFilePath) &&
+                (agreementFile == null || agreementFile.Length == 0))
+            {
+                ModelState.AddModelError("", "A signed agreement PDF must be uploaded.");
+            }
+            else if (agreementFile != null)
             {
                 var extension = Path.GetExtension(agreementFile.FileName).ToLower();
 
