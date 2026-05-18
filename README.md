@@ -299,3 +299,27 @@ GitHub Actions automatically:
 This ensures continuous integration and automated quality assurance.
 
 ---
+
+# References
+
+Microsoft, 2025. ASP.NET Core documentation. [online] Available at: <https://learn.microsoft.com/aspnet/core> [Accessed 18 May 2026].
+
+Microsoft, 2025. Entity Framework Core documentation. [online] Available at: <https://learn.microsoft.com/ef/core/> [Accessed 18 May 2026].
+
+Microsoft, 2025. Dependency injection in ASP.NET Core. [online] Available at: <https://learn.microsoft.com/aspnet/core/fundamentals/dependency-injection> [Accessed 18 May 2026].
+
+Microsoft, 2025. File uploads in ASP.NET Core. [online] Available at: <https://learn.microsoft.com/aspnet/core/mvc/models/file-uploads> [Accessed 18 May 2026].
+
+Microsoft, 2025. Unit testing C# with xUnit. [online] Available at: <https://learn.microsoft.com/dotnet/core/testing/unit-testing-csharp-with-xunit> [Accessed 18 May 2026].
+
+GitHub, 2025. GitHub Actions documentation. [online] Available at: <https://docs.github.com/actions> [Accessed 18 May 2026].
+
+Refactoring Guru, 2025. Strategy Design Pattern. [online] Available at: <https://refactoring.guru/design-patterns/strategy> [Accessed 18 May 2026].
+
+Refactoring Guru, 2025. Observer Design Pattern. [online] Available at: <https://refactoring.guru/design-patterns/observer> [Accessed 18 May 2026].
+
+Refactoring Guru, 2025. Factory Method Design Pattern. [online] Available at: <https://refactoring.guru/design-patterns/factory-method> [Accessed 18 May 2026].
+
+ExchangeRate-API, 2025. Exchange rate API documentation. [online] Available at: <https://www.exchangerate-api.com/> [Accessed 18 May 2026].
+
+Bootstrap, 2025. Bootstrap documentation. [online] Available at: <https://getbootstrap.com/docs/> [Accessed 18 May 2026].
