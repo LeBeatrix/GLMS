@@ -4,6 +4,7 @@ using GLMS.Web.Services;
 using GLMS.Web.Interfaces;
 using GLMS.Web.Factories;
 using GLMS.Web.Observers;
+using GLMS.Web.ApiServices;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -18,6 +19,10 @@ builder.Services.AddScoped<IServiceRequestObserver, ServiceRequestLogger>();
 
 // Add services to the container.
 builder.Services.AddControllersWithViews();
+builder.Services.AddHttpClient<ContractApiService>(client =>
+{
+    client.BaseAddress = new Uri("http://localhost:5001/"); // Update with your API base URL
+});
 
 var app = builder.Build();
 

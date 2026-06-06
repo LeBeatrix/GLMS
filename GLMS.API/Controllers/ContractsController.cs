@@ -11,10 +11,14 @@ namespace GLMS.API.Controllers
     public class ContractsController : ControllerBase
     {
         private readonly ApplicationDbContext _context;
+        private readonly IWebHostEnvironment _environment;
 
-        public ContractsController(ApplicationDbContext context)
+        public ContractsController(
+            ApplicationDbContext context,
+            IWebHostEnvironment environment)
         {
             _context = context;
+            _environment = environment;
         }
 
         // GET: /api/contracts
@@ -43,7 +47,19 @@ namespace GLMS.API.Controllers
                 query = query.Where(c => c.EndDate <= endDate.Value);
             }
 
-            var contracts = await query.ToListAsync();
+            var contracts = await query
+                .Select(c => new
+                {
+                    c.Id,
+                    c.ClientId,
+                    ClientName = c.Client != null ? c.Client.Name : "No Client",
+                    c.StartDate,
+                    c.EndDate,
+                    Status = c.Status,
+                    c.ServiceLevel,
+                    c.AgreementFilePath
+                })
+                .ToListAsync();
 
             return Ok(contracts);
         }
@@ -61,12 +77,23 @@ namespace GLMS.API.Controllers
                 return NotFound(new { message = "Contract not found." });
             }
 
-            return Ok(contract);
+            return Ok(new
+            {
+                contract.Id,
+                contract.ClientId,
+                ClientName = contract.Client != null ? contract.Client.Name : "No Client",
+                contract.StartDate,
+                contract.EndDate,
+                Status = contract.Status,
+                contract.ServiceLevel,
+                contract.AgreementFilePath
+            });
         }
 
         // POST: /api/contracts
         [HttpPost]
-        public async Task<IActionResult> CreateContract(CreateContractDto dto)
+        [Consumes("multipart/form-data")]
+        public async Task<IActionResult> CreateContract([FromForm] CreateContractDto dto)
         {
             if (dto.EndDate <= dto.StartDate)
             {
@@ -80,6 +107,38 @@ namespace GLMS.API.Controllers
                 return BadRequest(new { message = "Selected client does not exist." });
             }
 
+            if (dto.AgreementFile == null || dto.AgreementFile.Length == 0)
+            {
+                return BadRequest(new { message = "A signed agreement PDF must be uploaded." });
+            }
+
+            var extension = Path.GetExtension(dto.AgreementFile.FileName).ToLower();
+
+            if (extension != ".pdf")
+            {
+                return BadRequest(new { message = "Only PDF files are allowed." });
+            }
+
+            string uploadsFolder = Path.Combine(
+                _environment.WebRootPath,
+                "uploads",
+                "contracts"
+            );
+
+            if (!Directory.Exists(uploadsFolder))
+            {
+                Directory.CreateDirectory(uploadsFolder);
+            }
+
+            string uniqueFileName = Guid.NewGuid().ToString() + ".pdf";
+
+            string filePath = Path.Combine(uploadsFolder, uniqueFileName);
+
+            using (var fileStream = new FileStream(filePath, FileMode.Create))
+            {
+                await dto.AgreementFile.CopyToAsync(fileStream);
+            }
+
             var contract = new Contract
             {
                 ClientId = dto.ClientId,
@@ -87,7 +146,7 @@ namespace GLMS.API.Controllers
                 EndDate = dto.EndDate,
                 Status = dto.Status,
                 ServiceLevel = dto.ServiceLevel,
-                AgreementFilePath = dto.AgreementFilePath
+                AgreementFilePath = "/uploads/contracts/" + uniqueFileName
             };
 
             _context.Contracts.Add(contract);
@@ -96,7 +155,16 @@ namespace GLMS.API.Controllers
             return CreatedAtAction(
                 nameof(GetContractById),
                 new { id = contract.Id },
-                contract
+                new
+                {
+                    contract.Id,
+                    contract.ClientId,
+                    contract.StartDate,
+                    contract.EndDate,
+                    Status = contract.Status,
+                    contract.ServiceLevel,
+                    contract.AgreementFilePath
+                }
             );
         }
 
@@ -122,6 +190,30 @@ namespace GLMS.API.Controllers
                 message = "Contract status updated successfully.",
                 contractId = contract.Id,
                 newStatus = contract.Status.ToString()
+            });
+        }
+
+        // DELETE: /api/contracts/5
+        [HttpDelete("{id}")]
+        public async Task<IActionResult> DeleteContract(int id)
+        {
+            var contract = await _context.Contracts.FindAsync(id);
+
+            if (contract == null)
+            {
+                return NotFound(new
+                {
+                    message = "Contract not found."
+                });
+            }
+
+            _context.Contracts.Remove(contract);
+
+            await _context.SaveChangesAsync();
+
+            return Ok(new
+            {
+                message = "Contract deleted successfully."
             });
         }
     }

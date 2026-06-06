@@ -48,6 +48,8 @@ app.UseHttpsRedirection();
 
 app.UseCors("AllowMvcClient");
 
+app.UseStaticFiles();
+
 app.UseAuthorization();
 
 app.MapControllers();

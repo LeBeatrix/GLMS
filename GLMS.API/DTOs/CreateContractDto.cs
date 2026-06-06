@@ -21,6 +21,7 @@ namespace GLMS.API.DTOs
         [StringLength(100)]
         public string ServiceLevel { get; set; } = string.Empty;
 
-        public string? AgreementFilePath { get; set; }
+        [Required]
+        public IFormFile? AgreementFile { get; set; }
     }
 }
