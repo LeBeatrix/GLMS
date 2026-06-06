@@ -1,31 +1,24 @@
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
-using Microsoft.AspNetCore.Mvc;
-using Microsoft.AspNetCore.Mvc.Rendering;
-using Microsoft.EntityFrameworkCore;
-using GLMS.Web.Data;
+using GLMS.Web.ApiServices;
 using GLMS.Web.Models;
+using Microsoft.AspNetCore.Mvc;
 
 namespace GLMS.Web.Controllers
 {
     public class ClientsController : Controller
     {
-        private readonly ApplicationDbContext _context;
+        private readonly ClientApiService _clientApiService;
 
-        public ClientsController(ApplicationDbContext context)
+        public ClientsController(ClientApiService clientApiService)
         {
-            _context = context;
+            _clientApiService = clientApiService;
         }
 
-        // GET: Clients
         public async Task<IActionResult> Index()
         {
-            return View(await _context.Clients.ToListAsync());
+            var clients = await _clientApiService.GetClientsAsync();
+            return View(clients);
         }
 
-        // GET: Clients/Details/5
         public async Task<IActionResult> Details(int? id)
         {
             if (id == null)
@@ -33,8 +26,8 @@ namespace GLMS.Web.Controllers
                 return NotFound();
             }
 
-            var client = await _context.Clients
-                .FirstOrDefaultAsync(m => m.Id == id);
+            var client = await _clientApiService.GetClientByIdAsync(id.Value);
+
             if (client == null)
             {
                 return NotFound();
@@ -43,28 +36,30 @@ namespace GLMS.Web.Controllers
             return View(client);
         }
 
-        // GET: Clients/Create
         public IActionResult Create()
         {
             return View();
         }
 
-        // POST: Clients/Create
-        // To protect from overposting attacks, enable the specific properties you want to bind to.
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Create([Bind("Id,Name,ContactDetails,Region")] Client client)
         {
             if (ModelState.IsValid)
             {
-                _context.Add(client);
-                await _context.SaveChangesAsync();
-                return RedirectToAction(nameof(Index));
+                var success = await _clientApiService.CreateClientAsync(client);
+
+                if (success)
+                {
+                    return RedirectToAction(nameof(Index));
+                }
+
+                ModelState.AddModelError("", "Failed to create client through the API.");
             }
+
             return View(client);
         }
 
-        // GET: Clients/Edit/5
         public async Task<IActionResult> Edit(int? id)
         {
             if (id == null)
@@ -72,16 +67,16 @@ namespace GLMS.Web.Controllers
                 return NotFound();
             }
 
-            var client = await _context.Clients.FindAsync(id);
+            var client = await _clientApiService.GetClientByIdAsync(id.Value);
+
             if (client == null)
             {
                 return NotFound();
             }
+
             return View(client);
         }
 
-        // POST: Clients/Edit/5
-        // To protect from overposting attacks, enable the specific properties you want to bind to.
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Edit(int id, [Bind("Id,Name,ContactDetails,Region")] Client client)
@@ -93,28 +88,19 @@ namespace GLMS.Web.Controllers
 
             if (ModelState.IsValid)
             {
-                try
+                var success = await _clientApiService.UpdateClientAsync(client);
+
+                if (success)
                 {
-                    _context.Update(client);
-                    await _context.SaveChangesAsync();
+                    return RedirectToAction(nameof(Index));
                 }
-                catch (DbUpdateConcurrencyException)
-                {
-                    if (!ClientExists(client.Id))
-                    {
-                        return NotFound();
-                    }
-                    else
-                    {
-                        throw;
-                    }
-                }
-                return RedirectToAction(nameof(Index));
+
+                ModelState.AddModelError("", "Failed to update client through the API.");
             }
+
             return View(client);
         }
 
-        // GET: Clients/Delete/5
         public async Task<IActionResult> Delete(int? id)
         {
             if (id == null)
@@ -122,8 +108,8 @@ namespace GLMS.Web.Controllers
                 return NotFound();
             }
 
-            var client = await _context.Clients
-                .FirstOrDefaultAsync(m => m.Id == id);
+            var client = await _clientApiService.GetClientByIdAsync(id.Value);
+
             if (client == null)
             {
                 return NotFound();
@@ -132,24 +118,27 @@ namespace GLMS.Web.Controllers
             return View(client);
         }
 
-        // POST: Clients/Delete/5
         [HttpPost, ActionName("Delete")]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> DeleteConfirmed(int id)
         {
-            var client = await _context.Clients.FindAsync(id);
-            if (client != null)
+            var success = await _clientApiService.DeleteClientAsync(id);
+
+            if (!success)
             {
-                _context.Clients.Remove(client);
+                ModelState.AddModelError("", "Failed to delete client through the API.");
+
+                var client = await _clientApiService.GetClientByIdAsync(id);
+
+                if (client == null)
+                {
+                    return NotFound();
+                }
+
+                return View("Delete", client);
             }
 
-            await _context.SaveChangesAsync();
             return RedirectToAction(nameof(Index));
-        }
-
-        private bool ClientExists(int id)
-        {
-            return _context.Clients.Any(e => e.Id == id);
         }
     }
 }

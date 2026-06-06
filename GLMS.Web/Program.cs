@@ -23,6 +23,10 @@ builder.Services.AddHttpClient<ContractApiService>(client =>
 {
     client.BaseAddress = new Uri("http://localhost:5001/"); // Update with your API base URL
 });
+builder.Services.AddHttpClient<ClientApiService>(client =>
+{
+    client.BaseAddress = new Uri("http://localhost:5001/");
+});
 
 var app = builder.Build();
 

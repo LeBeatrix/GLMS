@@ -2,21 +2,20 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using GLMS.Web.Models;
 using GLMS.Web.ApiServices;
-using GLMS.Web.Data;
 
 namespace GLMS.Web.Controllers
 {
     public class ContractsController : Controller
     {
-        private readonly ApplicationDbContext _context;
         private readonly ContractApiService _contractApiService;
+        private readonly ClientApiService _clientApiService;
 
         public ContractsController(
-            ApplicationDbContext context,
-            ContractApiService contractApiService)
+            ContractApiService contractApiService,
+            ClientApiService clientApiService)
         {
-            _context = context;
             _contractApiService = contractApiService;
+            _clientApiService = clientApiService;
         }
 
         public async Task<IActionResult> Index()
@@ -42,9 +41,10 @@ namespace GLMS.Web.Controllers
             return View(contract);
         }
 
-        public IActionResult Create()
+        public async Task<IActionResult> Create()
         {
-            ViewData["ClientId"] = new SelectList(_context.Clients, "Id", "Name");
+            var clients = await _clientApiService.GetClientsAsync();
+            ViewData["ClientId"] = new SelectList(clients, "Id", "Name");
             return View();
         }
 
@@ -86,7 +86,8 @@ namespace GLMS.Web.Controllers
                 ModelState.AddModelError("", "Failed to create contract through the API.");
             }
 
-            ViewData["ClientId"] = new SelectList(_context.Clients, "Id", "Name", contract.ClientId);
+            var clients = await _clientApiService.GetClientsAsync();
+            ViewData["ClientId"] = new SelectList(clients, "Id", "Name", contract.ClientId);
             return View(contract);
         }
 
@@ -104,7 +105,8 @@ namespace GLMS.Web.Controllers
                 return NotFound();
             }
 
-            ViewData["ClientId"] = new SelectList(_context.Clients, "Id", "Name", contract.ClientId);
+            var clients = await _clientApiService.GetClientsAsync();
+            ViewData["ClientId"] = new SelectList(clients, "Id", "Name", contract.ClientId);
             return View(contract);
         }
 
@@ -140,7 +142,8 @@ namespace GLMS.Web.Controllers
                 ModelState.AddModelError("", "Failed to update contract status through the API.");
             }
 
-            ViewData["ClientId"] = new SelectList(_context.Clients, "Id", "Name", contract.ClientId);
+            var clients = await _clientApiService.GetClientsAsync();
+            ViewData["ClientId"] = new SelectList(clients, "Id", "Name", contract.ClientId);
             return View(contract);
         }
 
