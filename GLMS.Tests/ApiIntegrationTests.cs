@@ -41,7 +41,12 @@ namespace GLMS.Tests
 
             var response = await _client.GetAsync("api/contracts");
 
-            Assert.True(response.IsSuccessStatusCode);
+            var body = await response.Content.ReadAsStringAsync();
+
+            Assert.True(
+                response.IsSuccessStatusCode,
+                $"Expected success but got {(int)response.StatusCode} {response.StatusCode}. Body: {body}"
+            );
         }
 
         [Fact]
@@ -54,7 +59,12 @@ namespace GLMS.Tests
 
             var response = await _client.GetAsync("api/clients");
 
-            Assert.True(response.IsSuccessStatusCode);
+            var body = await response.Content.ReadAsStringAsync();
+
+            Assert.True(
+                response.IsSuccessStatusCode,
+                $"Expected success but got {(int)response.StatusCode} {response.StatusCode}. Body: {body}"
+            );
         }
 
         [Fact]
@@ -67,7 +77,12 @@ namespace GLMS.Tests
 
             var response = await _client.GetAsync("api/servicerequests");
 
-            Assert.True(response.IsSuccessStatusCode);
+            var body = await response.Content.ReadAsStringAsync();
+
+            Assert.True(
+                response.IsSuccessStatusCode,
+                $"Expected success but got {(int)response.StatusCode} {response.StatusCode}. Body: {body}"
+            );
         }
 
         private class LoginResponse
