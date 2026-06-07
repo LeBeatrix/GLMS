@@ -20,24 +20,26 @@ builder.Services.AddScoped<IServiceRequestObserver, ServiceRequestLogger>();
 // Add services to the container.
 builder.Services.AddControllersWithViews();
 
+var apiBaseUrl = builder.Configuration["ApiBaseUrl"] ?? "http://localhost:5001/";
+
 builder.Services.AddHttpClient<ContractApiService>(client =>
 {
-    client.BaseAddress = new Uri("http://localhost:5001/"); // Update with your API base URL
+    client.BaseAddress = new Uri(apiBaseUrl); // Update with your API base URL
 });
 
 builder.Services.AddHttpClient<ClientApiService>(client =>
 {
-    client.BaseAddress = new Uri("http://localhost:5001/");
+    client.BaseAddress = new Uri(apiBaseUrl);
 });
 
 builder.Services.AddHttpClient<ServiceRequestApiService>(client =>
 {
-    client.BaseAddress = new Uri("http://localhost:5001/");
+    client.BaseAddress = new Uri(apiBaseUrl);
 });
 
 builder.Services.AddHttpClient<AuthApiService>(client =>
 {
-    client.BaseAddress = new Uri("http://localhost:5001/");
+    client.BaseAddress = new Uri(apiBaseUrl);
 });
 
 var app = builder.Build();
