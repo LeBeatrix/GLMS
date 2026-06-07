@@ -25,5 +25,10 @@ jobs:
       - name: Build solution
         run: dotnet build GLMS.slnx --no-restore --configuration Release
 
+      - name: Start API
+        run: |
+          Start-Process dotnet -ArgumentList "run --project GLMS.API --configuration Release --urls http://localhost:5001"
+          Start-Sleep -Seconds 15
+
       - name: Run tests
         run: dotnet test GLMS.slnx --no-build --configuration Release
