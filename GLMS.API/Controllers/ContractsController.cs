@@ -3,11 +3,13 @@ using GLMS.API.DTOs;
 using GLMS.API.Models;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.AspNetCore.Authorization;
 
 namespace GLMS.API.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
+    [Authorize]
     public class ContractsController : ControllerBase
     {
         private readonly ApplicationDbContext _context;

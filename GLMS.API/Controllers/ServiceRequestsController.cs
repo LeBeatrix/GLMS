@@ -7,11 +7,13 @@ using GLMS.API.Factories;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using GLMS.API.DTOs;
+using Microsoft.AspNetCore.Authorization;
 
 namespace GLMS.API.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
+    [Authorize]
     public class ServiceRequestsController : ControllerBase
     {
         private readonly ApplicationDbContext _context;

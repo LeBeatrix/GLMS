@@ -35,6 +35,11 @@ builder.Services.AddHttpClient<ServiceRequestApiService>(client =>
     client.BaseAddress = new Uri("http://localhost:5001/");
 });
 
+builder.Services.AddHttpClient<AuthApiService>(client =>
+{
+    client.BaseAddress = new Uri("http://localhost:5001/");
+});
+
 var app = builder.Build();
 
 // Configure the HTTP request pipeline.

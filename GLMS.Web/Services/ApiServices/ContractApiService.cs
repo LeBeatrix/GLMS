@@ -6,25 +6,30 @@ namespace GLMS.Web.ApiServices
     public class ContractApiService
     {
         private readonly HttpClient _httpClient;
+        private readonly AuthApiService _authApiService;
 
-        public ContractApiService(HttpClient httpClient)
+        public ContractApiService(HttpClient httpClient, AuthApiService authApiService)
         {
             _httpClient = httpClient;
+            _authApiService = authApiService;
         }
 
         public async Task<List<Contract>> GetContractsAsync()
         {
+            await AddJwtTokenAsync();
             var contracts = await _httpClient.GetFromJsonAsync<List<Contract>>("api/contracts");
             return contracts ?? new List<Contract>();
         }
 
         public async Task<Contract?> GetContractByIdAsync(int id)
         {
+                        await AddJwtTokenAsync();
             return await _httpClient.GetFromJsonAsync<Contract>($"api/contracts/{id}");
         }
 
         public async Task<bool> CreateContractAsync(Contract contract, IFormFile agreementFile)
         {
+            await AddJwtTokenAsync();
             using var formData = new MultipartFormDataContent();
 
             formData.Add(new StringContent(contract.ClientId.ToString()), "ClientId");
@@ -47,6 +52,7 @@ namespace GLMS.Web.ApiServices
 
         public async Task<bool> UpdateContractAsync(Contract contract)
         {
+            await AddJwtTokenAsync();
             var response = await _httpClient.PutAsJsonAsync(
                 $"api/contracts/{contract.Id}",
                 new
@@ -64,11 +70,23 @@ namespace GLMS.Web.ApiServices
 
         public async Task<bool> DeleteContractAsync(int id)
         {
+            await AddJwtTokenAsync();
             var response = await _httpClient.DeleteAsync(
                 $"api/contracts/{id}"
             );
 
             return response.IsSuccessStatusCode;
+        }
+
+        private async Task AddJwtTokenAsync()
+        {
+            var token = await _authApiService.LoginAsync();
+
+            if (!string.IsNullOrEmpty(token))
+            {
+                _httpClient.DefaultRequestHeaders.Authorization =
+                    new System.Net.Http.Headers.AuthenticationHeaderValue("Bearer", token);
+            }
         }
     }
 }
