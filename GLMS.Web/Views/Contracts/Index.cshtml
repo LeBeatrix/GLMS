@@ -13,142 +13,92 @@
 </p>
 
 <table class="table table-striped table-bordered table-hover">
-
     <thead class="table-dark">
         <tr>
-            <th>
-                Client
-            </th>
-
-            <th>
-                Start Date
-            </th>
-
-            <th>
-                End Date
-            </th>
-
-            <th>
-                Status
-            </th>
-
-            <th>
-                Service Level
-            </th>
-
-            <th>
-                Agreement
-            </th>
-
-            <th>
-                Actions
-            </th>
+            <th>Client</th>
+            <th>Start Date</th>
+            <th>End Date</th>
+            <th>Status</th>
+            <th>Service Level</th>
+            <th>Agreement</th>
+            <th>Actions</th>
         </tr>
     </thead>
 
     <tbody>
+        @foreach (var item in Model)
+        {
+            <tr>
+                <td>
+                    @(item.ClientName ?? item.Client?.Name ?? "No Client")
+                </td>
 
-@foreach (var item in Model)
-{
-        <tr>
+                <td>
+                    @item.StartDate.ToShortDateString()
+                </td>
 
-            <td>
-                @(item.Client != null ? item.Client.Name : "No Client")
-            </td>
+                <td>
+                    @item.EndDate.ToShortDateString()
+                </td>
 
-            <td>
-                @item.StartDate.ToShortDateString()
-            </td>
+                <td>
+                    @if (item.Status == GLMS.Web.Models.ContractStatus.Active)
+                    {
+                        <span class="badge bg-success">Active</span>
+                    }
+                    else if (item.Status == GLMS.Web.Models.ContractStatus.Expired)
+                    {
+                        <span class="badge bg-danger">Expired</span>
+                    }
+                    else if (item.Status == GLMS.Web.Models.ContractStatus.OnHold)
+                    {
+                        <span class="badge bg-warning text-dark">On Hold</span>
+                    }
+                    else
+                    {
+                        <span class="badge bg-secondary">Draft</span>
+                    }
+                </td>
 
-            <td>
-                @item.EndDate.ToShortDateString()
-            </td>
+                <td>
+                    @item.ServiceLevel
+                </td>
 
-            <td>
+                <td>
+                    @if (!string.IsNullOrEmpty(item.AgreementFilePath))
+                    {
+                        <a href="@item.AgreementFilePath"
+                           target="_blank"
+                           class="btn btn-sm btn-outline-primary">
+                            View PDF
+                        </a>
+                    }
+                    else
+                    {
+                        <span class="text-muted">No File</span>
+                    }
+                </td>
 
-                @if (item.Status.ToString() == "Active")
-                {
-                    <span class="badge bg-success">
-                        Active
-                    </span>
-                }
-                else if (item.Status.ToString() == "Expired")
-                {
-                    <span class="badge bg-danger">
-                        Expired
-                    </span>
-                }
-                else if (item.Status.ToString() == "OnHold")
-                {
-                    <span class="badge bg-warning text-dark">
-                        On Hold
-                    </span>
-                }
-                else
-                {
-                    <span class="badge bg-secondary">
-                        Draft
-                    </span>
-                }
-
-            </td>
-
-            <td>
-                @item.ServiceLevel
-            </td>
-
-            <td>
-
-                @if (!string.IsNullOrEmpty(item.AgreementFilePath))
-                {
-                    <a href="@item.AgreementFilePath"
-                       target="_blank"
-                       class="btn btn-sm btn-outline-primary">
-
-                        View PDF
-
+                <td>
+                    <a asp-action="Edit"
+                       asp-route-id="@item.Id"
+                       class="btn btn-sm btn-warning">
+                        Edit
                     </a>
-                }
-                else
-                {
-                    <span class="text-muted">
-                        No File
-                    </span>
-                }
 
-            </td>
+                    <a asp-action="Details"
+                       asp-route-id="@item.Id"
+                       class="btn btn-sm btn-info text-white">
+                        Details
+                    </a>
 
-            <td>
-
-                <a asp-action="Edit"
-                   asp-route-id="@item.Id"
-                   class="btn btn-sm btn-warning">
-
-                    Edit
-
-                </a>
-
-                <a asp-action="Details"
-                   asp-route-id="@item.Id"
-                   class="btn btn-sm btn-info text-white">
-
-                    Details
-
-                </a>
-
-                <a asp-action="Delete"
-                   asp-route-id="@item.Id"
-                   class="btn btn-sm btn-danger">
-
-                    Delete
-
-                </a>
-
-            </td>
-
-        </tr>
-}
-
+                    <a asp-action="Delete"
+                       asp-route-id="@item.Id"
+                       class="btn btn-sm btn-danger">
+                        Delete
+                    </a>
+                </td>
+            </tr>
+        }
     </tbody>
-
 </table>

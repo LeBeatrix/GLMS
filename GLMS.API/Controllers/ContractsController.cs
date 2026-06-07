@@ -168,6 +168,49 @@ namespace GLMS.API.Controllers
             );
         }
 
+        // PUT: /api/contracts/5
+        [HttpPut("{id}")]
+        public async Task<IActionResult> UpdateContract(int id, UpdateContractDto dto)
+        {
+            var contract = await _context.Contracts.FindAsync(id);
+
+            if (contract == null)
+            {
+                return NotFound(new { message = "Contract not found." });
+            }
+
+            if (dto.EndDate <= dto.StartDate)
+            {
+                return BadRequest(new { message = "End date must be after the start date." });
+            }
+
+            var clientExists = await _context.Clients.AnyAsync(c => c.Id == dto.ClientId);
+
+            if (!clientExists)
+            {
+                return BadRequest(new { message = "Selected client does not exist." });
+            }
+
+            contract.ClientId = dto.ClientId;
+            contract.StartDate = dto.StartDate;
+            contract.EndDate = dto.EndDate;
+            contract.Status = dto.Status;
+            contract.ServiceLevel = dto.ServiceLevel;
+
+            await _context.SaveChangesAsync();
+
+            return Ok(new
+            {
+                contract.Id,
+                contract.ClientId,
+                contract.StartDate,
+                contract.EndDate,
+                Status = contract.Status,
+                contract.ServiceLevel,
+                contract.AgreementFilePath
+            });
+        }
+
         // PATCH: /api/contracts/5/status
         [HttpPatch("{id}/status")]
         public async Task<IActionResult> UpdateContractStatus(

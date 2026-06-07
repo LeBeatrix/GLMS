@@ -1,18 +1,11 @@
-using System.ComponentModel.DataAnnotations;
+﻿using System.ComponentModel.DataAnnotations;
 
-namespace GLMS.Web.Models
+namespace GLMS.API.DTOs
 {
-    public class ServiceRequest
+    public class UpdateServiceRequestDto
     {
-        public int Id { get; set; }
-
         [Required]
         public int ContractId { get; set; }
-
-        public Contract? Contract { get; set; }
-
-        // Added for API responses
-        public string? ContractName { get; set; }
 
         [Required]
         [StringLength(500)]
@@ -21,8 +14,6 @@ namespace GLMS.Web.Models
         [Required]
         [Range(0.01, 1000000)]
         public decimal CostUSD { get; set; }
-
-        public decimal CostZAR { get; set; }
 
         [Required]
         [StringLength(50)]

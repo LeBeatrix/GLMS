@@ -1,16 +1,18 @@
-using Microsoft.AspNetCore.Mvc;
-using Microsoft.AspNetCore.Mvc.Rendering;
-using Microsoft.EntityFrameworkCore;
 using GLMS.API.Data;
 using GLMS.API.Models;
 using GLMS.API.Services;
 using GLMS.API.Interfaces;
 using GLMS.API.Observers;
 using GLMS.API.Factories;
+using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
+using GLMS.API.DTOs;
 
 namespace GLMS.API.Controllers
 {
-    public class ServiceRequestsController : Controller
+    [Route("api/[controller]")]
+    [ApiController]
+    public class ServiceRequestsController : ControllerBase
     {
         private readonly ApplicationDbContext _context;
         private readonly ServiceRequestValidator _validator;
@@ -21,7 +23,9 @@ namespace GLMS.API.Controllers
         public ServiceRequestsController(
             ApplicationDbContext context,
             ServiceRequestValidator validator,
-            ICurrencyConverter currencyConverter, IServiceRequestObserver observer,  IServiceRequestFactory factory)
+            ICurrencyConverter currencyConverter,
+            IServiceRequestObserver observer,
+            IServiceRequestFactory factory)
         {
             _context = context;
             _validator = validator;
@@ -30,41 +34,74 @@ namespace GLMS.API.Controllers
             _factory = factory;
         }
 
-        public async Task<IActionResult> Index()
+        [HttpGet]
+        public async Task<IActionResult> GetServiceRequests()
         {
-            var serviceRequests = _context.ServiceRequests
-                .Include(s => s.Contract)
-                .ThenInclude(c => c.Client);
-
-            return View(await serviceRequests.ToListAsync());
-        }
-
-        public async Task<IActionResult> Details(int? id)
-        {
-            if (id == null) return NotFound();
-
-            var serviceRequest = await _context.ServiceRequests
+            var requests = await _context.ServiceRequests
                 .Include(s => s.Contract)
                 .ThenInclude(c => c.Client)
-                .FirstOrDefaultAsync(m => m.Id == id);
+                .Select(s => new
+                {
+                    s.Id,
+                    s.ContractId,
+                    ContractName = s.Contract != null ? s.Contract.DisplayName : "No Contract",
+                    s.Description,
+                    s.CostUSD,
+                    s.CostZAR,
+                    s.Status
+                })
+                .ToListAsync();
 
-            if (serviceRequest == null) return NotFound();
-
-            return View(serviceRequest);
+            return Ok(requests);
         }
 
-        public async Task<IActionResult> Create()
+        [HttpGet("{id}")]
+        public async Task<IActionResult> GetServiceRequestById(int id)
         {
-            await PopulateContractsDropDownList();
-            return View();
+            var request = await _context.ServiceRequests
+                .Include(s => s.Contract)
+                .ThenInclude(c => c.Client)
+                .FirstOrDefaultAsync(s => s.Id == id);
+
+            if (request == null)
+            {
+                return NotFound(new { message = "Service request not found." });
+            }
+
+            return Ok(new
+            {
+                request.Id,
+                request.ContractId,
+                ContractName = request.Contract != null ? request.Contract.DisplayName : "No Contract",
+                request.Description,
+                request.CostUSD,
+                request.CostZAR,
+                request.Status
+            });
         }
 
         [HttpPost]
-        [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create([Bind("Id,ContractId,Description,CostUSD,CostZAR,Status")] ServiceRequest serviceRequest)
+        public async Task<IActionResult> CreateServiceRequest(CreateServiceRequestDto serviceRequest)
         {
             var contract = await _context.Contracts
                 .FirstOrDefaultAsync(c => c.Id == serviceRequest.ContractId);
+
+            if (contract == null)
+            {
+                return BadRequest(new { message = "Selected contract could not be found." });
+            }
+
+            if (!_validator.CanCreateServiceRequest(contract))
+            {
+                return BadRequest(new { message = _validator.GetValidationMessage(contract) });
+            }
+
+            var validStatuses = new[] { "Pending", "Approved", "Rejected", "Completed" };
+
+            if (!validStatuses.Contains(serviceRequest.Status))
+            {
+                return BadRequest(new { message = "Invalid service request status." });
+            }
 
             var newRequest = _factory.Create(
                 serviceRequest.ContractId,
@@ -73,155 +110,86 @@ namespace GLMS.API.Controllers
                 serviceRequest.Status
             );
 
-            if (contract == null)
-            {
-                ModelState.AddModelError("", "Selected contract could not be found.");
-            }
-            else if (!_validator.CanCreateServiceRequest(contract))
-            {
-                ModelState.AddModelError("", _validator.GetValidationMessage(contract));
-            }
+            newRequest.CostZAR =
+                await _currencyConverter.ConvertAsync(newRequest.CostUSD);
 
-            // Validate status
-            var validStatuses = new[] { "Pending", "Approved", "Rejected", "Completed" };
+            _context.ServiceRequests.Add(newRequest);
+            await _context.SaveChangesAsync();
 
-            if (!validStatuses.Contains(serviceRequest.Status))
-            {
-                ModelState.AddModelError("Status", "Invalid service request status.");
-            }
-            if (ModelState.IsValid)
-            {
-                try
-                { 
-                    newRequest.CostZAR = await _currencyConverter.ConvertAsync(newRequest.CostUSD);
-
-                    _context.Add(newRequest);
-                    await _context.SaveChangesAsync();
-
-                    return RedirectToAction(nameof(Index));
-                }
-                catch
-                {
-                    ModelState.AddModelError("", "Currency API is currently unavailable. Please try again later.");
-                }
-            }
-
-            await PopulateContractsDropDownList(serviceRequest.ContractId);
-            return View(serviceRequest);
-        }
-
-        public async Task<IActionResult> Edit(int? id)
-        {
-            if (id == null) return NotFound();
-
-            var serviceRequest = await _context.ServiceRequests.FindAsync(id);
-
-            if (serviceRequest == null) return NotFound();
-
-            await PopulateContractsDropDownList(serviceRequest.ContractId);
-            return View(serviceRequest);
-        }
-
-        [HttpPost]
-        [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Edit(int id, [Bind("Id,ContractId,Description,CostUSD,CostZAR,Status")] ServiceRequest serviceRequest)
-        {
-            if (id != serviceRequest.Id) return NotFound();
-
-            var contract = await _context.Contracts
-                .FirstOrDefaultAsync(c => c.Id == serviceRequest.ContractId);
-
-            if (contract == null)
-            {
-                ModelState.AddModelError("", "Selected contract could not be found.");
-            }
-            else if (!_validator.CanCreateServiceRequest(contract))
-            {
-                ModelState.AddModelError("", _validator.GetValidationMessage(contract));
-            }
-
-            // Validate status
-            var validStatuses = new[] { "Pending", "Approved", "Rejected", "Completed" };
-
-            if (!validStatuses.Contains(serviceRequest.Status))
-            {
-                ModelState.AddModelError("Status", "Invalid service request status.");
-            }
-            if (ModelState.IsValid)
-            {
-                try
-                {
-
-                    serviceRequest.CostZAR = await _currencyConverter.ConvertAsync(serviceRequest.CostUSD);
-
-                    _context.Update(serviceRequest);
-                    await _context.SaveChangesAsync();
-
-                    _observer.Update(serviceRequest);
-
-                    return RedirectToAction(nameof(Index));
-                }
-                catch (DbUpdateConcurrencyException)
-                {
-                    if (!ServiceRequestExists(serviceRequest.Id)) return NotFound();
-                    throw;
-                }
-                catch
-                {
-                    ModelState.AddModelError("", "Currency API is currently unavailable. Please try again later.");
-                }
-            }
-
-            await PopulateContractsDropDownList(serviceRequest.ContractId);
-            return View(serviceRequest);
-        }
-
-        public async Task<IActionResult> Delete(int? id)
-        {
-            if (id == null) return NotFound();
-
-            var serviceRequest = await _context.ServiceRequests
-                .Include(s => s.Contract)
-                .ThenInclude(c => c.Client)
-                .FirstOrDefaultAsync(m => m.Id == id);
-
-            if (serviceRequest == null) return NotFound();
-
-            return View(serviceRequest);
-        }
-
-        [HttpPost, ActionName("Delete")]
-        [ValidateAntiForgeryToken]
-        public async Task<IActionResult> DeleteConfirmed(int id)
-        {
-            var serviceRequest = await _context.ServiceRequests.FindAsync(id);
-
-            if (serviceRequest != null)
-            {
-                _context.ServiceRequests.Remove(serviceRequest);
-                await _context.SaveChangesAsync();
-            }
-
-            return RedirectToAction(nameof(Index));
-        }
-
-        private async Task PopulateContractsDropDownList(object? selectedContract = null)
-        {
-            var contracts = await _context.Contracts
-                .Include(c => c.Client)
-                .ToListAsync();
-
-            ViewData["ContractId"] = new SelectList(
-                contracts,
-                "Id",
-                "DisplayName",
-                selectedContract
+            return CreatedAtAction(
+                nameof(GetServiceRequestById),
+                new { id = newRequest.Id },
+                newRequest
             );
         }
 
-        private bool ServiceRequestExists(int id)
+        [HttpPut("{id}")]
+        public async Task<IActionResult> UpdateServiceRequest(
+            int id,
+            UpdateServiceRequestDto dto)
         {
-            return _context.ServiceRequests.Any(e => e.Id == id);
+            var existingRequest = await _context.ServiceRequests.FindAsync(id);
+
+            if (existingRequest == null)
+            {
+                return NotFound(new { message = "Service request not found." });
+            }
+
+            var contract = await _context.Contracts
+                .FirstOrDefaultAsync(c => c.Id == dto.ContractId);
+
+            if (contract == null)
+            {
+                return BadRequest(new { message = "Selected contract could not be found." });
+            }
+
+            if (!_validator.CanCreateServiceRequest(contract))
+            {
+                return BadRequest(new { message = _validator.GetValidationMessage(contract) });
+            }
+
+            var validStatuses = new[] { "Pending", "Approved", "Rejected", "Completed" };
+
+            if (!validStatuses.Contains(dto.Status))
+            {
+                return BadRequest(new { message = "Invalid service request status." });
+            }
+
+            existingRequest.ContractId = dto.ContractId;
+            existingRequest.Description = dto.Description;
+            existingRequest.CostUSD = dto.CostUSD;
+            existingRequest.Status = dto.Status;
+            existingRequest.CostZAR = await _currencyConverter.ConvertAsync(dto.CostUSD);
+
+            await _context.SaveChangesAsync();
+
+            _observer.Update(existingRequest);
+
+            return Ok(new
+            {
+                existingRequest.Id,
+                existingRequest.ContractId,
+                existingRequest.Description,
+                existingRequest.CostUSD,
+                existingRequest.CostZAR,
+                existingRequest.Status
+            });
+        }
+
+        [HttpDelete("{id}")]
+        public async Task<IActionResult> DeleteServiceRequest(int id)
+        {
+            var request = await _context.ServiceRequests.FindAsync(id);
+
+            if (request == null)
+            {
+                return NotFound(new { message = "Service request not found." });
+            }
+
+            _context.ServiceRequests.Remove(request);
+            await _context.SaveChangesAsync();
+
+            return Ok(new { message = "Service request deleted successfully." });
         }
     }
 }

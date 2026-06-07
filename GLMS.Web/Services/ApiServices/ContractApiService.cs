@@ -45,11 +45,18 @@ namespace GLMS.Web.ApiServices
             return response.IsSuccessStatusCode;
         }
 
-        public async Task<bool> UpdateContractStatusAsync(int id, ContractStatus status)
+        public async Task<bool> UpdateContractAsync(Contract contract)
         {
-            var response = await _httpClient.PatchAsJsonAsync(
-                $"api/contracts/{id}/status",
-                new { status }
+            var response = await _httpClient.PutAsJsonAsync(
+                $"api/contracts/{contract.Id}",
+                new
+                {
+                    contract.ClientId,
+                    contract.StartDate,
+                    contract.EndDate,
+                    contract.Status,
+                    contract.ServiceLevel
+                }
             );
 
             return response.IsSuccessStatusCode;

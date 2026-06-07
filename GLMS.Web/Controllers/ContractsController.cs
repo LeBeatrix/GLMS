@@ -129,10 +129,7 @@ namespace GLMS.Web.Controllers
 
             if (ModelState.IsValid)
             {
-                var success = await _contractApiService.UpdateContractStatusAsync(
-                    contract.Id,
-                    contract.Status
-                );
+                var success = await _contractApiService.UpdateContractAsync(contract);
 
                 if (success)
                 {

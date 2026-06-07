@@ -11,6 +11,9 @@ namespace GLMS.Web.Models
 
         public Client? Client { get; set; }
 
+        // Added for API responses
+        public string? ClientName { get; set; }
+
         [Required]
         [DataType(DataType.Date)]
         public DateTime StartDate { get; set; }
@@ -34,7 +37,7 @@ namespace GLMS.Web.Models
         {
             get
             {
-                return $"{Client?.Name} - {ServiceLevel}";
+                return $"{(ClientName ?? Client?.Name ?? "No Client")} - {ServiceLevel}";
             }
         }
     }

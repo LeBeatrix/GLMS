@@ -19,11 +19,18 @@ builder.Services.AddScoped<IServiceRequestObserver, ServiceRequestLogger>();
 
 // Add services to the container.
 builder.Services.AddControllersWithViews();
+
 builder.Services.AddHttpClient<ContractApiService>(client =>
 {
     client.BaseAddress = new Uri("http://localhost:5001/"); // Update with your API base URL
 });
+
 builder.Services.AddHttpClient<ClientApiService>(client =>
+{
+    client.BaseAddress = new Uri("http://localhost:5001/");
+});
+
+builder.Services.AddHttpClient<ServiceRequestApiService>(client =>
 {
     client.BaseAddress = new Uri("http://localhost:5001/");
 });
