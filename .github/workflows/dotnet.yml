@@ -10,6 +10,15 @@ jobs:
   build-and-test:
     runs-on: windows-latest
 
+    services:
+      sqlserver:
+        image: mcr.microsoft.com/mssql/server:2022-latest
+        env:
+          ACCEPT_EULA: Y
+          SA_PASSWORD: YourStrong!Passw0rd
+        ports:
+          - 1433:1433
+
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
@@ -25,7 +34,18 @@ jobs:
       - name: Build solution
         run: dotnet build GLMS.slnx --no-restore --configuration Release
 
+      - name: Install EF Tool
+        run: dotnet tool update --global dotnet-ef
+
+      - name: Wait for SQL Server
+        shell: pwsh
+        run: Start-Sleep -Seconds 30
+
+      - name: Apply database migrations
+        run: dotnet ef database update --project GLMS.API --connection "Server=localhost,1433;Database=GLMSDb;User Id=sa;Password=YourStrong!Passw0rd;TrustServerCertificate=True;"
+
       - name: Start API
+        shell: pwsh
         run: |
           Start-Process dotnet -ArgumentList "run --project GLMS.API --configuration Release --urls http://localhost:5001"
           Start-Sleep -Seconds 15
