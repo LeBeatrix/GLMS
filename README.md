@@ -1,143 +1,326 @@
 # Global Logistics Management System (GLMS)
 
-###### Enterprise Application Development POE Part 2
+## Enterprise Application Development POE
 
-###### Student: Lené Prinsloo
+### Student Information
 
-###### Student Number: ST10496124
+**Student:** Lené Prinsloo
+**Student Number:** ST10496124
 
-###### YouTube Demonstration Link:
-https://youtu.be/Bd9NwPr0DGY 
+### Demonstration Videos
+
+**Demo 1 – Core Functionality**
+https://youtu.be/Bd9NwPr0DGY
+
+**Demo 2 – Docker, API, JWT Authentication and Integration Testing**
+[Insert Demo 2 YouTube Link Here]
 
 ---
 
 # Project Overview
 
-GLMS is an ASP.NET Core MVC enterprise prototype developed for TechMove Logistics.
+The Global Logistics Management System (GLMS) is an enterprise logistics management solution developed for TechMove Logistics using ASP.NET Core, Entity Framework Core, SQL Server, Docker, and RESTful APIs.
 
-The system manages:
-- Clients
-- Contracts
-- Service Requests
-- PDF Agreement Uploads
-- Workflow Validation
-- Currency Conversion
-- Automated Testing
+The system enables logistics administrators to manage:
 
-The project demonstrates enterprise software development principles using ASP.NET Core MVC, Entity Framework Core, SQL Server, GitHub Actions CI/CD, and multiple enterprise design patterns.
+* Clients
+* Contracts
+* Service Requests
+* Contract Agreements (PDF Uploads)
+* Currency Conversion
+* Workflow Validation
+* JWT Authentication
+* API Integration
+* Docker Container Deployment
+
+The solution demonstrates modern enterprise application development practices, including layered architecture, design patterns, CI/CD automation, containerization, automated testing, and secure API communication.
 
 ---
 
-# Technologies
+# Solution Architecture
 
-- ASP.NET Core MVC
-- Entity Framework Core
-- SQL Server LocalDB
-- Bootstrap
-- xUnit
-- GitHub Actions
-- HttpClient API Integration
+The solution consists of three main components:
+
+### GLMS.Web
+
+ASP.NET Core MVC Frontend Application
+
+Responsibilities:
+
+* User Interface
+* Authentication
+* Client Management
+* Contract Management
+* Service Request Management
+* API Consumption
+
+### GLMS.API
+
+ASP.NET Core Web API
+
+Responsibilities:
+
+* REST Endpoints
+* JWT Authentication
+* Business Logic
+* Database Access
+* Entity Framework Core
+
+### GLMS.Tests
+
+xUnit Test Project
+
+Responsibilities:
+
+* Unit Testing
+* Integration Testing
+* API Endpoint Validation
+* Authentication Testing
+
+---
+
+# Technologies Used
+
+* ASP.NET Core MVC
+* ASP.NET Core Web API
+* Entity Framework Core
+* SQL Server
+* Docker
+* Docker Compose
+* JWT Authentication
+* Bootstrap 5
+* xUnit
+* GitHub Actions
+* HttpClient
+* Swagger/OpenAPI
 
 ---
 
 # Features
 
-- Client CRUD management
-- Contract CRUD management
-- Service Request CRUD management
-- PDF agreement upload for contracts
-- Contract workflow validation
-- Blocks service requests for:
-  - Draft contracts
-  - Expired contracts
-  - On Hold contracts
-- USD to ZAR currency conversion using an external API
-- Unit testing for:
-  - Currency calculation
-  - File validation
-  - Workflow validation
-- GitHub Actions CI/CD pipeline
+## Client Management
+
+* Create Clients
+* View Clients
+* Edit Clients
+* Delete Clients
+
+---
+
+## Contract Management
+
+* Create Contracts
+* Edit Contracts
+* Delete Contracts
+* Upload PDF Agreements
+* Contract Status Tracking
+
+Supported statuses:
+
+* Draft
+* Active
+* On Hold
+* Expired
+
+---
+
+## Service Request Management
+
+* Create Service Requests
+* Track Request Status
+* Currency Conversion
+* Workflow Validation
+
+Business rules prevent service requests from being created when:
+
+* Contract is Draft
+* Contract is On Hold
+* Contract is Expired
+
+---
+
+## JWT Authentication
+
+The API is secured using JWT Bearer Tokens.
+
+Features include:
+
+* Secure Login Endpoint
+* Token Generation
+* Authorization Protection
+* Swagger JWT Support
+* MVC to API Authentication Flow
+
+---
+
+## Currency Conversion
+
+The system integrates with an external exchange-rate API to convert:
+
+USD → ZAR
+
+This demonstrates external service integration and API consumption.
+
+---
+
+## Docker Deployment
+
+The application is fully containerized using Docker.
+
+Containers:
+
+* sql-server-db
+* glms-backend-api
+* glms-frontend-web
+
+Benefits:
+
+* Consistent environments
+* Easy deployment
+* Simplified testing
+* Cloud-ready architecture
 
 ---
 
 # Design Patterns Implemented
 
 ## MVC Pattern
-Separates:
-- Models
-- Views
-- Controllers
 
-Improves maintainability and scalability.
+Separates:
+
+* Models
+* Views
+* Controllers
+
+Benefits:
+
+* Maintainability
+* Separation of Concerns
+* Scalability
 
 ---
 
 ## Strategy Pattern
+
 Used for currency conversion.
 
-### Classes
-- `ICurrencyConverter`
-- `UsdToZarConverter`
+Classes:
 
-Allows future currency strategies without modifying controller logic.
+* ICurrencyConverter
+* UsdToZarConverter
+
+Benefits:
+
+* Open/Closed Principle
+* Easy future currency additions
 
 ---
 
 ## Observer Pattern
-Used for service request status notifications.
 
-### Classes
-- `IServiceRequestObserver`
-- `ServiceRequestLogger`
+Used for service request event notifications.
 
-Logs service request workflow updates.
+Classes:
+
+* IServiceRequestObserver
+* ServiceRequestLogger
+
+Benefits:
+
+* Decoupled notifications
+* Event monitoring
 
 ---
 
 ## Factory Pattern
-Used for centralized service request object creation.
 
-### Classes
-- `IServiceRequestFactory`
-- `ServiceRequestFactory`
+Used for service request object creation.
 
-Improves scalability and object creation management.
+Classes:
+
+* IServiceRequestFactory
+* ServiceRequestFactory
+
+Benefits:
+
+* Centralized object creation
+* Improved maintainability
 
 ---
 
 ## Dependency Injection
-ASP.NET Core dependency injection is used throughout the application for:
-- Services
-- Validators
-- Observers
-- Factories
+
+Used throughout the application for:
+
+* Services
+* Validators
+* API Clients
+* Observers
+* Factories
+
+Benefits:
+
+* Loose coupling
+* Improved testability
 
 ---
 
-# Database Migration Scripts
+# Database
 
-## Initial Database Setup
+Database Engine:
+
+SQL Server 2022
+
+Tables:
+
+* Clients
+* Contracts
+* ServiceRequests
+* __EFMigrationsHistory
+
+Entity Framework Core Code-First Migrations are used to create and manage the database schema.
+
+---
+
+# Running with Docker
+
+## Start Containers
 
 ```bash
-Add-Migration InitialCreate
-Update-Database
-```
-
-## Additional Migrations
-
-```bash
-Add-Migration AddContractValidation
-Add-Migration AddCurrencyConversion
-Update-Database
+docker compose up -d
 ```
 
 ---
 
-# How to Run the Application
+## Verify Containers
 
-## 1. Clone Repository
+```bash
+docker ps
+```
 
-![Home Page](Screenshots/github-main.png)
+Expected Containers:
+
+* sql-server-db
+* glms-backend-api
+* glms-frontend-web
+
+---
+
+## Access Applications
+
+MVC Application:
+
+http://localhost:5000
+
+Swagger API:
+
+http://localhost:5001/swagger
+
+---
+
+# Running Locally
+
+## Clone Repository
 
 ```bash
 git clone https://github.com/LeBeatrix/GLMS.git
@@ -145,27 +328,31 @@ git clone https://github.com/LeBeatrix/GLMS.git
 
 ---
 
-## 2. Open Solution
-
-Open:
-
-```text
-GLMS.slnx
-```
-
-in Visual Studio.
-
----
-
-## 3. Update Database
+## Restore Packages
 
 ```bash
-dotnet ef database update --project GLMS.Web
+dotnet restore
 ```
 
 ---
 
-## 4. Run Application
+## Apply Database Migrations
+
+```bash
+dotnet ef database update --project GLMS.API
+```
+
+---
+
+## Run API
+
+```bash
+dotnet run --project GLMS.API
+```
+
+---
+
+## Run MVC Application
 
 ```bash
 dotnet run --project GLMS.Web
@@ -173,7 +360,32 @@ dotnet run --project GLMS.Web
 
 ---
 
-# How to Run Tests
+# Testing
+
+## Unit Testing
+
+Implemented using xUnit.
+
+Tests include:
+
+* Workflow Validation
+* Currency Conversion
+* File Validation
+* Business Rule Validation
+
+---
+
+## Integration Testing
+
+Integration tests validate:
+
+* API Availability
+* JWT Authentication
+* Contracts Endpoint
+* Service Requests Endpoint
+* Client Endpoints
+
+Run tests:
 
 ```bash
 dotnet test GLMS.slnx
@@ -181,145 +393,63 @@ dotnet test GLMS.slnx
 
 ---
 
-# Example Test Data
+# CI/CD Pipeline
 
-## Clients
+GitHub Actions automatically:
 
-### Client 1
+* Restores Dependencies
+* Builds Solution
+* Runs Automated Tests
+* Validates Application Health
 
-```text
-Name: Cape Global Freight
-Contact: support@capeglobal.co.za
-Region: South Africa
-```
+Benefits:
 
-### Client 2
-
-```text
-Name: EuroTrans Logistics
-Contact: operations@eurotrans.eu
-Region: Europe
-```
-
-### Client 3
-
-```text
-Name: Atlantic Cargo Solutions
-Contact: contact@atlanticcargo.com
-Region: North America
-```
-
----
-
-# Validation Features
-
-## Contract Validation
-- End date must be after start date
-- Signed PDF agreement required
-- Only PDF files accepted
-
----
-
-## Service Request Validation
-Service requests cannot be created for:
-- Expired contracts
-- Draft contracts
-- On Hold contracts
+* Continuous Integration
+* Automated Quality Assurance
+* Early Error Detection
 
 ---
 
 # Screenshots
 
-## Home Page
+Include screenshots of:
 
-![Home Page](Screenshots/home-page.png)
-
----
-
-## Clients Management
-
-![Clients](Screenshots/clients-index.png)
-
----
-
-## Contract Management
-
-![Contracts](Screenshots/contracts-index.png)
-
----
-
-## PDF Upload Validation
-
-![PDF Upload](Screenshots/pdf-upload.png)
-
----
-
-## Currency Conversion
-
-![Currency Conversion](Screenshots/currency-conversion.png)
-
----
-
-## Workflow Validation
-
-![Workflow Validation](Screenshots/workflow-validation.png)
-
----
-
-## Unit Testing
-
-![Unit Tests](Screenshots/unit-tests.png)
-
----
-
-## GitHub Actions Pipeline
-
-![GitHub Actions](Screenshots/github-actions.png)
-
----
-
-# Unit Testing
-
-The application uses xUnit testing.
-
-Tests include:
-- Currency conversion tests
-- File validation tests
-- Workflow validation tests
-
----
-
-# CI/CD Pipeline
-
-GitHub Actions automatically:
-- Restores dependencies
-- Builds the solution
-- Runs unit tests
-
-This ensures continuous integration and automated quality assurance.
+* GitHub Repository
+* Docker Containers
+* Docker Compose Startup
+* Swagger API
+* MVC Application
+* Clients Management
+* Contracts Management
+* Service Requests Management
+* JWT Authentication
+* Integration Tests
+* GitHub Actions Pipeline
 
 ---
 
 # References
 
-Microsoft, 2025. ASP.NET Core documentation. [online] Available at: <https://learn.microsoft.com/aspnet/core> [Accessed 18 May 2026].
+Bootstrap, 2025. Bootstrap Documentation. Available at: https://getbootstrap.com/docs/
 
-Microsoft, 2025. Entity Framework Core documentation. [online] Available at: <https://learn.microsoft.com/ef/core/> [Accessed 18 May 2026].
+ExchangeRate API, 2025. ExchangeRate API Documentation. Available at: https://www.exchangerate-api.com/
 
-Microsoft, 2025. Dependency injection in ASP.NET Core. [online] Available at: <https://learn.microsoft.com/aspnet/core/fundamentals/dependency-injection> [Accessed 18 May 2026].
+GitHub, 2025. GitHub Actions Documentation. Available at: https://docs.github.com/actions
 
-Microsoft, 2025. File uploads in ASP.NET Core. [online] Available at: <https://learn.microsoft.com/aspnet/core/mvc/models/file-uploads> [Accessed 18 May 2026].
+Microsoft, 2025. ASP.NET Core Documentation. Available at: https://learn.microsoft.com/aspnet/core
 
-Microsoft, 2025. Unit testing C# with xUnit. [online] Available at: <https://learn.microsoft.com/dotnet/core/testing/unit-testing-csharp-with-xunit> [Accessed 18 May 2026].
+Microsoft, 2025. Entity Framework Core Documentation. Available at: https://learn.microsoft.com/ef/core
 
-GitHub, 2025. GitHub Actions documentation. [online] Available at: <https://docs.github.com/actions> [Accessed 18 May 2026].
+Microsoft, 2025. Dependency Injection in ASP.NET Core. Available at: https://learn.microsoft.com/aspnet/core/fundamentals/dependency-injection
 
-Refactoring Guru, 2025. Strategy Design Pattern. [online] Available at: <https://refactoring.guru/design-patterns/strategy> [Accessed 18 May 2026].
+Microsoft, 2025. Authentication and Authorization in ASP.NET Core. Available at: https://learn.microsoft.com/aspnet/core/security/authentication
 
-Refactoring Guru, 2025. Observer Design Pattern. [online] Available at: <https://refactoring.guru/design-patterns/observer> [Accessed 18 May 2026].
+Microsoft, 2025. Docker Support in ASP.NET Core. Available at: https://learn.microsoft.com/aspnet/core/host-and-deploy/docker
 
-Refactoring Guru, 2025. Factory Method Design Pattern. [online] Available at: <https://refactoring.guru/design-patterns/factory-method> [Accessed 18 May 2026].
+Microsoft, 2025. Unit Testing with xUnit. Available at: https://learn.microsoft.com/dotnet/core/testing/unit-testing-csharp-with-xunit
 
-ExchangeRate-API, 2025. Exchange rate API documentation. [online] Available at: <https://www.exchangerate-api.com/> [Accessed 18 May 2026].
+Refactoring Guru, 2025. Factory Method Pattern. Available at: https://refactoring.guru/design-patterns/factory-method
 
-Bootstrap, 2025. Bootstrap documentation. [online] Available at: <https://getbootstrap.com/docs/> [Accessed 18 May 2026].
+Refactoring Guru, 2025. Observer Pattern. Available at: https://refactoring.guru/design-patterns/observer
+
+Refactoring Guru, 2025. Strategy Pattern. Available at: https://refactoring.guru/design-patterns/strategy
