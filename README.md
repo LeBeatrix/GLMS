@@ -13,7 +13,7 @@
 https://youtu.be/Bd9NwPr0DGY
 
 **Demo 2 – Docker, API, JWT Authentication and Integration Testing**
-[Insert Demo 2 Link Here]
+https://youtu.be/0uK6imMx-io
 
 ---
 
@@ -410,22 +410,51 @@ Benefits:
 
 ---
 
-# Screenshots
+# Screenshots:
 
-Include screenshots of:
-
-* GitHub Repository
-* Docker Containers
-* Docker Compose Startup
-* Swagger API
-* MVC Application
+* Home Page | MVC Application
+![Home Page](Screenshots/home-page.png)
+---
 * Clients Management
-* Contracts Management
-* Service Requests Management
-* JWT Authentication
-* Integration Tests
+![Clients](Screenshots/clients-index.png)
+---
+* Contract Management
+![Contracts](Screenshots/contracts-index.png)
+---
+* PDF Upload Validation
+![PDF Upload](Screenshots/pdf-upload.png)
+---
+* Currency Conversion
+![Currency Conversion](Screenshots/currency-conversion.png)
+---
+* Workflow Validation
+![Workflow Validation](Screenshots/workflow-validation.png)
+---
+* Unit Testing
+![Unit Tests](Screenshots/unit-tests.png)
+---
 * GitHub Actions Pipeline
-
+![GitHub Actions](Screenshots/github-actions.png)
+---
+* GitHub Repository
+![GitHub Repository](Screenshots/github-repo.png)
+---
+* Docker Containers
+![Docker Containers](Screenshots/docker.png)
+---
+* Docker Compose Startup
+![Docker Compose Startup](Screenshots/docker-containers.png)
+---
+* Swagger API 
+![Swagger API 1](Screenshots/swagger-API1.png)
+![Swagger API 2](Screenshots/swagger-API2.png)
+---
+* JWT Authentication
+![JWT Authentication 1](Screenshots/JWT-authentication.png)
+![JWT Authentication 2](Screenshots/JWT-authentication1.png)
+---
+* Integration Tests
+![Integration Tests](Screenshots/unit-tests.png)
 ---
 
 # References
