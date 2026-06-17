@@ -452,4 +452,8 @@ Refactoring Guru, 2025. Factory Method Pattern. Available at: https://refactorin
 
 Refactoring Guru, 2025. Observer Pattern. Available at: https://refactoring.guru/design-patterns/observer
 
+<<<<<<< HEAD
 Refactoring Guru, 2025. Strategy Pattern. Available at: https://refactoring.guru/design-patterns/strategy
+=======
+Refactoring Guru, 2025. Strategy Pattern. Available at: https://refactoring.guru/design-patterns/strategy
+>>>>>>> 6723fdca120bbdfa5b8999291ce3ab4450671bd0
