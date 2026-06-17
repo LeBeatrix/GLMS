@@ -40,13 +40,24 @@ jobs:
       - name: Wait for SQL Server
         run: sleep 30
 
+      - name: Set Connection String
+        run: |
+          echo "ConnectionStrings__DefaultConnection=Server=localhost,1433;Database=GLMSDb;User Id=sa;Password=YourStrong!Passw0rd;TrustServerCertificate=True;" >> $GITHUB_ENV
+
       - name: Apply database migrations
-        run: dotnet ef database update --project GLMS.API --connection "Server=localhost,1433;Database=GLMSDb;User Id=sa;Password=YourStrong!Passw0rd;TrustServerCertificate=True;"
+        run: |
+          dotnet ef database update \
+            --project GLMS.API \
+            --connection "Server=localhost,1433;Database=GLMSDb;User Id=sa;Password=YourStrong!Passw0rd;TrustServerCertificate=True;"
 
       - name: Start API
+        env:
+          ConnectionStrings__DefaultConnection: ${{ env.ConnectionStrings__DefaultConnection }}
         run: |
           dotnet run --project GLMS.API --configuration Release --urls http://localhost:5001 &
-          sleep 15
+          sleep 20
 
       - name: Run tests
+        env:
+          ConnectionStrings__DefaultConnection: ${{ env.ConnectionStrings__DefaultConnection }}
         run: dotnet test GLMS.slnx --no-build --configuration Release
