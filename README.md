@@ -413,13 +413,16 @@ Benefits:
 # Screenshots:
 
 * Home Page | MVC Application
-![Home Page](Screenshots/home-page.png)
+![Home Page](Screenshots/home.png)
 ---
 * Clients Management
-![Clients](Screenshots/clients-index.png)
+![Clients](Screenshots/client-index.png)
 ---
 * Contract Management
-![Contracts](Screenshots/contracts-index.png)
+![Contracts](Screenshots/Contracts-index(2).png)
+---
+** Service Request Management
+![Service Request](Screenshots/aervicerequest-index.png)
 ---
 * PDF Upload Validation
 ![PDF Upload](Screenshots/pdf-upload.png)
@@ -452,9 +455,6 @@ Benefits:
 * JWT Authentication
 ![JWT Authentication 1](Screenshots/JWT-authentication.png)
 ![JWT Authentication 2](Screenshots/JWT-authentication1.png)
----
-* Integration Tests
-![Integration Tests](Screenshots/unit-tests.png)
 ---
 
 # References
