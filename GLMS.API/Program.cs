@@ -3,10 +3,10 @@ using GLMS.API.Factories;
 using GLMS.API.Interfaces;
 using GLMS.API.Observers;
 using GLMS.API.Services;
-using GLMS.API.Observers;
-using Microsoft.EntityFrameworkCore;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
+using Microsoft.OpenApi;
 using System.Text;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -51,7 +51,33 @@ builder.Services.AddScoped<IServiceRequestFactory, ServiceRequestFactory>();
 builder.Services.AddScoped<IServiceRequestObserver, ServiceRequestLogger>();
 
 builder.Services.AddEndpointsApiExplorer();
-builder.Services.AddSwaggerGen();
+
+builder.Services.AddSwaggerGen(options =>
+{
+    options.SwaggerDoc("v1", new OpenApiInfo
+    {
+        Title = "GLMS API",
+        Version = "v1"
+    });
+
+    options.AddSecurityDefinition("Bearer", new OpenApiSecurityScheme
+    {
+        Name = "Authorization",
+        Type = SecuritySchemeType.Http,
+        Scheme = "bearer",
+        BearerFormat = "JWT",
+        In = ParameterLocation.Header,
+        Description = "Enter: Bearer {your JWT token}"
+    });
+
+    options.AddSecurityRequirement(openApiDocument => new OpenApiSecurityRequirement
+    {
+        {
+            new OpenApiSecuritySchemeReference("Bearer", openApiDocument, null),
+            new List<string>()
+        }
+    });
+});
 
 builder.Services.AddCors(options =>
 {
@@ -84,3 +110,4 @@ app.UseAuthorization();
 app.MapControllers();
 
 app.Run();
+
