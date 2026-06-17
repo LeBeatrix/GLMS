@@ -54,6 +54,7 @@ builder.Services.AddEndpointsApiExplorer();
 
 builder.Services.AddSwaggerGen(options =>
 {
+
     options.SwaggerDoc("v1", new OpenApiInfo
     {
         Title = "GLMS API",
